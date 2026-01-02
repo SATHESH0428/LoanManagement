@@ -26,7 +26,7 @@ public class CustomerServlet extends HttpServlet {
     private final CustomerService customerService = new CustomerService();
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
     	LOG.info("Enter into the custemer service post method");
@@ -52,7 +52,7 @@ public class CustomerServlet extends HttpServlet {
     }
     
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
         String id = request.getParameter("id");
@@ -75,7 +75,7 @@ public class CustomerServlet extends HttpServlet {
     }
     
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+	public void doPut(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
         Customer customer = new ObjectMapper()
@@ -87,7 +87,7 @@ public class CustomerServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+	public void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
         long id = Long.parseLong(request.getParameter("id"));

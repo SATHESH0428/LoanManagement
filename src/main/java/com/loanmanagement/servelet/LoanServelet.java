@@ -33,7 +33,7 @@ public class LoanServelet extends HttpServlet {
     private LoanService loanService = new LoanService();
 
       @Override
-      protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
               throws IOException {
 
           try {
@@ -65,7 +65,7 @@ public class LoanServelet extends HttpServlet {
 
 
      @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+	public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         try {
@@ -104,7 +104,7 @@ public class LoanServelet extends HttpServlet {
 
 
      @Override
-     protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+	public void doPut(HttpServletRequest req, HttpServletResponse resp)
              throws IOException {
 
          try {
@@ -139,7 +139,7 @@ public class LoanServelet extends HttpServlet {
 
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+	public void doDelete(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         try {

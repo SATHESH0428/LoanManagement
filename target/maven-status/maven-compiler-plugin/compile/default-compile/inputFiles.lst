@@ -1,10 +1,10 @@
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\service\LoanService.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\dao\CustomerDao.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\exception\DataException.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\service\CustomerService.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\model\Loan.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\dbconfig\ConnectionClass.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\model\Customer.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\dao\LoanDao.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\servelet\LoanServelet.java
-C:\Users\sathe\Desktop\LoanMangement\loanmanagement\src\main\java\com\loanmanagement\servelet\CustomerServlet.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\model\Customer.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\servelet\LoanServelet.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\model\Loan.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\exception\DataException.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\service\CustomerService.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\servelet\CustomerServlet.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\dao\CustomerDao.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\dao\LoanDao.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\service\LoanService.java
+C:\Users\BLUE SCOPE\OneDrive\Desktop\LoanCrudProject\LoanManagement\src\main\java\com\loanmanagement\dbconfig\ConnectionClass.java
