@@ -5,7 +5,6 @@ import java.io.Serial;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,81 +18,57 @@ import com.loanmanagement.exception.DataException;
 import com.loanmanagement.model.Loan;
 import com.loanmanagement.service.LoanService;
 
-
-
 @WebServlet("/loan")
 public class LoanServelet extends HttpServlet {
 
-	@Serial
-	private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-	private static final Logger LOG =
+    private static final Logger LOG =
             LoggerFactory.getLogger(LoanServelet.class);
 
     private LoanService loanService = new LoanService();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-      @Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-              throws IOException {
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
 
-          try {
-             
-              StringBuilder json = new StringBuilder();
-              String line;
-              while ((line = req.getReader().readLine()) != null) {
-                  json.append(line);
-              }
+        try {
+            Loan loan = mapper.readValue(req.getInputStream(), Loan.class);
 
-              ObjectMapper mapper = new ObjectMapper();
-              Loan loan = mapper.readValue(json.toString(), Loan.class);
+            loan.setLoanAccountNo("LN" + System.currentTimeMillis());
+            loan.setStatus("ACTIVE");
+            loan.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 
-              
-              loan.setLoanAccountNo("LN" + System.currentTimeMillis());
-              loan.setStatus("ACTIVE");
-              loan.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+            loanService.createLoan(loan);
 
-              loanService.createLoan(loan);
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.getWriter().write("Loan created successfully");
 
-              resp.setStatus(HttpServletResponse.SC_CREATED);
-              resp.getWriter().println("Loan created successfully");
+        } catch (Exception e) {
+            LOG.error("Loan creation failed", e);
+            throw new DataException("Loan creation failed", e);
+        }
+    }
 
-          } catch (Exception e) {
-              LOG.error("Loan creation failed", e);
-              throw new DataException("Loan creation failed", e);
-          }
-      }
-
-
-     @Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
 
         try {
             String idParam = req.getParameter("id");
 
             if (idParam != null) {
-                long id = Long.parseLong(idParam);
-                Loan loan = loanService.getLoanById(id);
-
-                if (loan == null) {
-                    resp.getWriter().println("Loan not found");
-                    return;
-                }
-
-                resp.getWriter().println("Loan Account No: " + loan.getLoanAccountNo());
-                resp.getWriter().println("Loan Type: " + loan.getLoanType());
-                resp.getWriter().println("Amount: " + loan.getPrincipalAmount());
-                resp.getWriter().println("Status: " + loan.getStatus());
+                Loan loan = loanService.getLoanById(Long.parseLong(idParam));
+                resp.getWriter().write(
+                        mapper.writeValueAsString(loan)
+                );
             } else {
                 List<Loan> loans = loanService.getAllLoans();
-                for (Loan loan : loans) {
-                    resp.getWriter().println(
-                        loan.getId() + " | " +
-                        loan.getLoanAccountNo() + " | " +
-                        loan.getLoanType() + " | " +
-                        loan.getStatus()
-                    );
-                }
+                resp.getWriter().write(
+                        mapper.writeValueAsString(loans)
+                );
             }
 
         } catch (Exception e) {
@@ -102,51 +77,38 @@ public class LoanServelet extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
 
-     @Override
-	public void doPut(HttpServletRequest req, HttpServletResponse resp)
-             throws IOException {
+        try {
+            Loan loan = mapper.readValue(req.getInputStream(), Loan.class);
 
-         try {
-            
-             StringBuilder json = new StringBuilder();
-             String line;
-             while ((line = req.getReader().readLine()) != null) {
-                 json.append(line);
-             }
+            if (loan.getId() <= 0) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("Loan id is required");
+                return;
+            }
 
+            loanService.updateLoan(loan);
 
-             ObjectMapper mapper = new ObjectMapper();
-             Loan loan = mapper.readValue(json.toString(), Loan.class);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write("Loan updated successfully");
 
-            
-             if (loan.getId() <= 0) {
-                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                 resp.getWriter().println("Loan id is required for update");
-                 return;
-             }
-
-             loanService.updateLoan(loan);
-
-             resp.setStatus(HttpServletResponse.SC_OK);
-             resp.getWriter().println("Loan updated successfully");
-
-         } catch (Exception e) {
-             LOG.error("Loan update failed", e);
-             throw new DataException("Loan update failed", e);
-         }
-     }
-
+        } catch (Exception e) {
+            LOG.error("Loan update failed", e);
+            throw new DataException("Loan update failed", e);
+        }
+    }
 
     @Override
-	public void doDelete(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
 
         try {
             long id = Long.parseLong(req.getParameter("id"));
             loanService.deleteLoan(id);
-
-            resp.getWriter().println("Loan deleted successfully");
+            resp.getWriter().write("Loan deleted successfully");
 
         } catch (Exception e) {
             LOG.error("Loan delete failed", e);

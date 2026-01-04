@@ -5,14 +5,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com</groupId>
+    <groupId>com.loanmanagement</groupId>
     <artifactId>loanmanagement</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>loanmanagement Maven Webapp</name>
+    <name>Loan Management System</name>
 
-    <!-- ✅ REQUIRED PROPERTIES -->
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -29,11 +28,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- MySQL -->
+        <!-- MySQL JDBC -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.4.0</version>
+            <version>8.0.33</version>
         </dependency>
 
         <!-- Jackson -->
@@ -89,25 +88,22 @@
     </dependencies>
 
     <build>
-        <finalName>LoanManagement</finalName>
+        <finalName>loanmanagement</finalName>
 
         <plugins>
 
-            <!-- ✅ REQUIRED FOR JUNIT 5 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
-            </plugin>
-
-            <!-- Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
             </plugin>
 
-            <!-- WAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -117,11 +113,10 @@
                 </configuration>
             </plugin>
 
-            <!-- Liquibase -->
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
-                <version>5.0.0</version>
+                <version>4.27.0</version>
                 <configuration>
                     <changeLogFile>
                         src/main/resources/db/changelog/db.changelog-master.xml
@@ -129,6 +124,7 @@
                     <url>jdbc:mysql://localhost:3306/loan_management</url>
                     <username>root</username>
                     <password>Admin@123</password>
+                    <driver>com.mysql.cj.jdbc.Driver</driver>
                 </configuration>
             </plugin>
 

@@ -1,4 +1,4 @@
-package com.loanmanagement.test;
+package com.loanmanagement.servelet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;

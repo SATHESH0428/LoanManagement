@@ -1,0 +1,21 @@
+2026-01-04 18:10:02 INFO  c.l.service.CustomerService - Customer created CUST001
+2026-01-04 18:10:03 INFO  c.l.servelet.CustomerServlet - Enter into the custemer service post method
+2026-01-04 18:10:03 INFO  c.l.servelet.CustomerServlet - Enter into the custemer service post method
+2026-01-04 18:10:03 INFO  c.l.servelet.CustomerServlet - Customer created successfully
+2026-01-04 18:10:03 INFO  c.loanmanagement.service.LoanService - Loan updated successfully id=1
+2026-01-04 18:10:03 INFO  c.loanmanagement.service.LoanService - Loan created successfully: LN123
+2026-01-04 18:10:03 INFO  c.loanmanagement.service.LoanService - Loan deleted successfully id=1
+2026-01-04 18:17:09 INFO  c.l.service.CustomerService - Customer created CUST001
+2026-01-04 18:17:11 INFO  c.l.servelet.CustomerServlet - Enter into the custemer service post method
+2026-01-04 18:17:11 INFO  c.l.servelet.CustomerServlet - Enter into the custemer service post method
+2026-01-04 18:17:11 INFO  c.l.servelet.CustomerServlet - Customer created successfully
+2026-01-04 18:17:11 INFO  c.loanmanagement.service.LoanService - Loan updated successfully id=1
+2026-01-04 18:17:11 INFO  c.loanmanagement.service.LoanService - Loan created successfully: LN123
+2026-01-04 18:17:11 INFO  c.loanmanagement.service.LoanService - Loan deleted successfully id=1
+2026-01-04 18:20:41 INFO  c.l.service.CustomerService - Customer created CUST001
+2026-01-04 18:20:42 INFO  c.l.servelet.CustomerServlet - Enter into the custemer service post method
+2026-01-04 18:20:42 INFO  c.l.servelet.CustomerServlet - Enter into the custemer service post method
+2026-01-04 18:20:42 INFO  c.l.servelet.CustomerServlet - Customer created successfully
+2026-01-04 18:20:42 INFO  c.loanmanagement.service.LoanService - Loan updated successfully id=1
+2026-01-04 18:20:42 INFO  c.loanmanagement.service.LoanService - Loan created successfully: LN123
+2026-01-04 18:20:42 INFO  c.loanmanagement.service.LoanService - Loan deleted successfully id=1
