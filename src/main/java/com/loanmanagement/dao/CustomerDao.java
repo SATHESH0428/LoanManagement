@@ -13,147 +13,140 @@ import org.slf4j.LoggerFactory;
 import com.loanmanagement.dbconfig.ConnectionClass;
 import com.loanmanagement.exception.DataException;
 import com.loanmanagement.model.Customer;
-;
 
 public class CustomerDao {
 
-	static final int INSERT_CUSTOMER_CODE = 1;
-	static final int INSERT_CUSTOMER_NAME = 2;
-	static final int INSERT_CUSTOMER_EMAIL = 3;
-	static final int INSERT_CUSTOMER_MOBILE = 4;
-	static final int INSERT_CUSTOMER_ADDRESS = 5;
-	static final int INSERT_CUSTOMER_KYC = 6;
-	static final int INSERT_CREATED_DATE = 7;
+    private static final Logger LOG =
+            LoggerFactory.getLogger(CustomerDao.class);
 
-	static final int DELETE_CUSTOMER_ID = 1;
+    private static final String INSERT_SQL =
+            "INSERT INTO customer (customer_code, name, email, mobile, address, kyc_status, created_date) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-	static final int UPDATE_CUSTOMER_KYC = 1;
-	static final int UPDATE_CUSTOMER_ID = 2;
+    private static final String SELECT_ALL_SQL =
+            "SELECT * FROM customer";
 
-	Logger LOG = LoggerFactory.getLogger(CustomerDao.class);
+    private static final String SELECT_BY_ID_SQL =
+            "SELECT * FROM customer WHERE id=?";
 
-	String InsertSQL = "INSERT INTO customer (customer_code,name,email,mobile,address,kyc_status,created_date) "
-			+ "VALUES (?,?,?,?,?,?,?)";
+    private static final String UPDATE_SQL =
+            "UPDATE customer SET name=?, email=?, mobile=?, address=?, kyc_status=? WHERE id=?";
 
-	String DeleteSQL = "DELETE FROM customer WHERE id=?";
+    private static final String DELETE_SQL =
+            "DELETE FROM customer WHERE id=?";
 
-	String UpdateSQL = "UPDATE customer SET kyc_status=? WHERE id=?";
+    public void insert(Customer customer) {
 
-	public void insert(Customer customer) {
+        try (Connection con = ConnectionClass.getConnection();
+             PreparedStatement ps = con.prepareStatement(INSERT_SQL)) {
 
-		try (Connection con = ConnectionClass.getConnection(); PreparedStatement ps = con.prepareStatement(InsertSQL)) {
+            ps.setString(1, customer.getCustomerCode());
+            ps.setString(2, customer.getName());
+            ps.setString(3, customer.getEmail());
+            ps.setString(4, customer.getMobile());
+            ps.setString(5, customer.getAddress());
+            ps.setString(6, customer.getKycStatus());
+            ps.setTimestamp(7, customer.getCreatedDate());
 
-			ps.setString(INSERT_CUSTOMER_CODE, customer.getCustomerCode());
-			ps.setString(INSERT_CUSTOMER_NAME, customer.getName());
-			ps.setString(INSERT_CUSTOMER_EMAIL, customer.getEmail());
-			ps.setString(INSERT_CUSTOMER_MOBILE, customer.getMobile());
-			ps.setString(INSERT_CUSTOMER_ADDRESS, customer.getAddress());
-			ps.setString(INSERT_CUSTOMER_KYC, customer.getKycStatus());
-			ps.setTimestamp(INSERT_CREATED_DATE, customer.getCreatedDate());
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                LOG.error("Insert failed for Customer {}", customer.getCustomerCode());
+            } else {
+                LOG.info("Customer inserted {}", customer.getCustomerCode());
+            }
 
-			int rows = ps.executeUpdate();
-			if (rows == 0) {
-				LOG.error("Insert failed for Customer {}", customer.getCustomerCode());
-			} else {
-				LOG.info("Customer inserted {}", customer.getCustomerCode());
-			}
+        } catch (SQLException e) {
+            throw new DataException("Failed to insert Customer", e);
+        }
+    }
 
-		} catch (SQLException e) {
-			throw new DataException("Failed to insert Customer", e);
-		}
-	}
+    public List<Customer> getAll() {
 
-	public List<Customer> getAll() {
+        List<Customer> customers = new ArrayList<>();
 
-		List<Customer> customers = new ArrayList<>();
+        try (Connection con = ConnectionClass.getConnection();
+             PreparedStatement ps = con.prepareStatement(SELECT_ALL_SQL);
+             ResultSet rs = ps.executeQuery()) {
 
-		String sql = "SELECT * FROM customer";
+            while (rs.next()) {
+                Customer c = new Customer();
+                c.setId(rs.getLong("id"));
+                c.setCustomerCode(rs.getString("customer_code"));
+                c.setName(rs.getString("name"));
+                c.setEmail(rs.getString("email"));
+                c.setMobile(rs.getString("mobile"));
+                c.setAddress(rs.getString("address"));
+                c.setKycStatus(rs.getString("kyc_status"));
+                c.setCreatedDate(rs.getTimestamp("created_date"));
+                customers.add(c);
+            }
 
-		try (Connection con = ConnectionClass.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql);
-				ResultSet rs = ps.executeQuery()) {
+        } catch (SQLException e) {
+            throw new DataException("Fetch all customers failed", e);
+        }
 
-			while (rs.next()) {
-				Customer c = new Customer();
-				c.setId(rs.getLong("id"));
-				c.setCustomerCode(rs.getString("customer_code"));
-				c.setName(rs.getString("name"));
-				c.setEmail(rs.getString("email"));
-				c.setMobile(rs.getString("mobile"));
-				c.setAddress(rs.getString("address"));
-				c.setKycStatus(rs.getString("kyc_status"));
-				c.setCreatedDate(rs.getTimestamp("created_date"));
-				customers.add(c);
-			}
+        return customers;
+    }
 
-		} catch (SQLException e) {
-			throw new DataException("Fetch all customers failed", e);
-		}
+    public Customer getById(long id) {
 
-		return customers;
-	}
+        Customer customer = null;
 
-	public Customer getById(long id) {
+        try (Connection con = ConnectionClass.getConnection();
+             PreparedStatement ps = con.prepareStatement(SELECT_BY_ID_SQL)) {
 
-		String sql = "SELECT * FROM customer WHERE id=?";
-		Customer customer = null;
+            ps.setLong(1, id);
 
-		try (Connection con = ConnectionClass.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    customer = new Customer();
+                    customer.setId(rs.getLong("id"));
+                    customer.setCustomerCode(rs.getString("customer_code"));
+                    customer.setName(rs.getString("name"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setMobile(rs.getString("mobile"));
+                    customer.setAddress(rs.getString("address"));
+                    customer.setKycStatus(rs.getString("kyc_status"));
+                    customer.setCreatedDate(rs.getTimestamp("created_date"));
+                }
+            }
 
-			ps.setLong(1, id);
-			ResultSet rs = ps.executeQuery();
+        } catch (SQLException e) {
+            throw new DataException("Fetch customer failed", e);
+        }
 
-			if (rs.next()) {
-				customer = new Customer();
-				customer.setId(rs.getLong("id"));
-				customer.setCustomerCode(rs.getString("customer_code"));
-				customer.setName(rs.getString("name"));
-				customer.setEmail(rs.getString("email"));
-				customer.setMobile(rs.getString("mobile"));
-				customer.setAddress(rs.getString("address"));
-				customer.setKycStatus(rs.getString("kyc_status"));
-				customer.setCreatedDate(rs.getTimestamp("created_date"));
-			}
+        return customer;
+    }
 
-		} catch (SQLException e) {
-			throw new DataException("Fetch customer failed", e);
-		}
+    public void update(Customer customer) {
 
-		return customer;
-	}
+        try (Connection con = ConnectionClass.getConnection();
+             PreparedStatement ps = con.prepareStatement(UPDATE_SQL)) {
 
-	public void update(Customer customer) {
+            ps.setString(1, customer.getName());
+            ps.setString(2, customer.getEmail());
+            ps.setString(3, customer.getMobile());
+            ps.setString(4, customer.getAddress());
+            ps.setString(5, customer.getKycStatus());
+            ps.setLong(6, customer.getId());
 
-		String sql = "UPDATE customer SET name=?, email=?, mobile=?, address=?, kyc_status=? WHERE id=?";
+            ps.executeUpdate();
 
-		try (Connection con = ConnectionClass.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        } catch (SQLException e) {
+            throw new DataException("Update customer failed", e);
+        }
+    }
 
-			ps.setString(1, customer.getName());
-			ps.setString(2, customer.getEmail());
-			ps.setString(3, customer.getMobile());
-			ps.setString(4, customer.getAddress());
-			ps.setString(5, customer.getKycStatus());
-			ps.setLong(6, customer.getId());
+    public void delete(long id) {
 
-			ps.executeUpdate();
+        try (Connection con = ConnectionClass.getConnection();
+             PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
 
-		} catch (SQLException e) {
-			throw new DataException("Update customer failed", e);
-		}
-	}
+            ps.setLong(1, id);
+            ps.executeUpdate();
 
-	public void delete(long id) {
-
-		String sql = "DELETE FROM customer WHERE id=?";
-
-		try (Connection con = ConnectionClass.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-			ps.setLong(1, id);
-			ps.executeUpdate();
-
-		} catch (SQLException e) {
-			throw new DataException("Delete customer failed", e);
-		}
-	}
-
+        } catch (SQLException e) {
+            throw new DataException("Delete customer failed", e);
+        }
+    }
 }

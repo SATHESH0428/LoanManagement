@@ -16,55 +16,38 @@ import com.loanmanagement.model.Loan;
 
 public class LoanDao {
 
-    static final int INSERT_LOAN_ACCOUNT_NO = 1;
-    static final int INSERT_CUSTOMER_ID = 2;
-    static final int INSERT_LOAN_TYPE = 3;
-    static final int INSERT_PRINCIPAL_AMOUNT = 4;
-    static final int INSERT_INTEREST_RATE = 5;
-    static final int INSERT_TENURE_MONTHS = 6;
-    static final int INSERT_STATUS = 7;
-    static final int INSERT_CREATED_DATE = 8;
+    private static final Logger LOG =
+            LoggerFactory.getLogger(LoanDao.class);
 
-    static final int DELETE_LOAN_ID = 1;
+    private static final String INSERT_SQL =
+            "INSERT INTO loan (loan_account_no, customer_id, loan_type, principal_amount, interest_rate, tenure_months, status, created_date) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    static final int UPDATE_LOAN_TYPE = 1;
-    static final int UPDATE_PRINCIPAL_AMOUNT = 2;
-    static final int UPDATE_INTEREST_RATE = 3;
-    static final int UPDATE_TENURE_MONTHS = 4;
-    static final int UPDATE_STATUS = 5;
-    static final int UPDATE_LOAN_ID = 6;
+    private static final String SELECT_ALL_SQL =
+            "SELECT * FROM loan";
 
-    Logger LOG = LoggerFactory.getLogger(LoanDao.class);
+    private static final String SELECT_BY_ID_SQL =
+            "SELECT * FROM loan WHERE id=?";
 
-    String InsertSQL =
-        "INSERT INTO loan (loan_account_no, customer_id, loan_type, principal_amount, interest_rate, tenure_months, status, created_date) "
-      + "VALUES (?,?,?,?,?,?,?,?)";
+    private static final String UPDATE_SQL =
+            "UPDATE loan SET loan_type=?, principal_amount=?, interest_rate=?, tenure_months=?, status=? WHERE id=?";
 
-    String SelectAllSQL =
-        "SELECT * FROM loan";
-
-    String SelectByIdSQL =
-        "SELECT * FROM loan WHERE id=?";
-
-    String UpdateSQL =
-        "UPDATE loan SET loan_type=?, principal_amount=?, interest_rate=?, tenure_months=?, status=? WHERE id=?";
-
-    String DeleteSQL =
-        "DELETE FROM loan WHERE id=?";
+    private static final String DELETE_SQL =
+            "DELETE FROM loan WHERE id=?";
 
     public void insert(Loan loan) {
 
         try (Connection con = ConnectionClass.getConnection();
-             PreparedStatement ps = con.prepareStatement(InsertSQL)) {
+             PreparedStatement ps = con.prepareStatement(INSERT_SQL)) {
 
-            ps.setString(INSERT_LOAN_ACCOUNT_NO, loan.getLoanAccountNo());
-            ps.setLong(INSERT_CUSTOMER_ID, loan.getCustomerId());
-            ps.setString(INSERT_LOAN_TYPE, loan.getLoanType());
-            ps.setBigDecimal(INSERT_PRINCIPAL_AMOUNT, loan.getPrincipalAmount());
-            ps.setBigDecimal(INSERT_INTEREST_RATE, loan.getInterestRate());
-            ps.setInt(INSERT_TENURE_MONTHS, loan.getTenureMonths());
-            ps.setString(INSERT_STATUS, loan.getStatus());
-            ps.setTimestamp(INSERT_CREATED_DATE, loan.getCreatedDate());
+            ps.setString(1, loan.getLoanAccountNo());
+            ps.setLong(2, loan.getCustomerId());
+            ps.setString(3, loan.getLoanType());
+            ps.setBigDecimal(4, loan.getPrincipalAmount());
+            ps.setBigDecimal(5, loan.getInterestRate());
+            ps.setInt(6, loan.getTenureMonths());
+            ps.setString(7, loan.getStatus());
+            ps.setTimestamp(8, loan.getCreatedDate());
 
             int rows = ps.executeUpdate();
             if (rows == 0) {
@@ -83,7 +66,7 @@ public class LoanDao {
         List<Loan> loans = new ArrayList<>();
 
         try (Connection con = ConnectionClass.getConnection();
-             PreparedStatement ps = con.prepareStatement(SelectAllSQL);
+             PreparedStatement ps = con.prepareStatement(SELECT_ALL_SQL);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -112,22 +95,23 @@ public class LoanDao {
         Loan loan = null;
 
         try (Connection con = ConnectionClass.getConnection();
-             PreparedStatement ps = con.prepareStatement(SelectByIdSQL)) {
+             PreparedStatement ps = con.prepareStatement(SELECT_BY_ID_SQL)) {
 
             ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                loan = new Loan();
-                loan.setId(rs.getLong("id"));
-                loan.setLoanAccountNo(rs.getString("loan_account_no"));
-                loan.setCustomerId(rs.getLong("customer_id"));
-                loan.setLoanType(rs.getString("loan_type"));
-                loan.setPrincipalAmount(rs.getBigDecimal("principal_amount"));
-                loan.setInterestRate(rs.getBigDecimal("interest_rate"));
-                loan.setTenureMonths(rs.getInt("tenure_months"));
-                loan.setStatus(rs.getString("status"));
-                loan.setCreatedDate(rs.getTimestamp("created_date"));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    loan = new Loan();
+                    loan.setId(rs.getLong("id"));
+                    loan.setLoanAccountNo(rs.getString("loan_account_no"));
+                    loan.setCustomerId(rs.getLong("customer_id"));
+                    loan.setLoanType(rs.getString("loan_type"));
+                    loan.setPrincipalAmount(rs.getBigDecimal("principal_amount"));
+                    loan.setInterestRate(rs.getBigDecimal("interest_rate"));
+                    loan.setTenureMonths(rs.getInt("tenure_months"));
+                    loan.setStatus(rs.getString("status"));
+                    loan.setCreatedDate(rs.getTimestamp("created_date"));
+                }
             }
 
         } catch (SQLException e) {
@@ -140,14 +124,14 @@ public class LoanDao {
     public void update(Loan loan) {
 
         try (Connection con = ConnectionClass.getConnection();
-             PreparedStatement ps = con.prepareStatement(UpdateSQL)) {
+             PreparedStatement ps = con.prepareStatement(UPDATE_SQL)) {
 
-            ps.setString(UPDATE_LOAN_TYPE, loan.getLoanType());
-            ps.setBigDecimal(UPDATE_PRINCIPAL_AMOUNT, loan.getPrincipalAmount());
-            ps.setBigDecimal(UPDATE_INTEREST_RATE, loan.getInterestRate());
-            ps.setInt(UPDATE_TENURE_MONTHS, loan.getTenureMonths());
-            ps.setString(UPDATE_STATUS, loan.getStatus());
-            ps.setLong(UPDATE_LOAN_ID, loan.getId());
+            ps.setString(1, loan.getLoanType());
+            ps.setBigDecimal(2, loan.getPrincipalAmount());
+            ps.setBigDecimal(3, loan.getInterestRate());
+            ps.setInt(4, loan.getTenureMonths());
+            ps.setString(5, loan.getStatus());
+            ps.setLong(6, loan.getId());
 
             ps.executeUpdate();
 
@@ -159,9 +143,9 @@ public class LoanDao {
     public void delete(long id) {
 
         try (Connection con = ConnectionClass.getConnection();
-             PreparedStatement ps = con.prepareStatement(DeleteSQL)) {
+             PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
 
-            ps.setLong(DELETE_LOAN_ID, id);
+            ps.setLong(1, id);
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -169,4 +153,3 @@ public class LoanDao {
         }
     }
 }
-

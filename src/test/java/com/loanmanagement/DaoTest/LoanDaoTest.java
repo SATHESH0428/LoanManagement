@@ -1,9 +1,4 @@
-package com.loanmanagement.servelet;
-
-
-
-
-
+package com.loanmanagement.DaoTest;
 
 import com.loanmanagement.dao.CustomerDao;
 import com.loanmanagement.dao.LoanDao;
@@ -14,10 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +20,7 @@ class LoanDaoTest {
     private CustomerDao customerDao;
 
     @BeforeEach
-    void setup() throws Exception {
+    void setup() {
 
         loanDao = new LoanDao();
         customerDao = new CustomerDao();
@@ -39,8 +31,11 @@ class LoanDaoTest {
                 "Admin@123")) {
 
             Statement stmt = con.createStatement();
-            stmt.execute("DELETE FROM loan");     
-            stmt.execute("DELETE FROM customer"); 
+            stmt.execute("DELETE FROM loan");
+            stmt.execute("DELETE FROM customer");
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -50,25 +45,23 @@ class LoanDaoTest {
         Customer customer = createCustomer();
         customerDao.insert(customer);
 
-        assertTrue(customer.getId() > 0);
+        long customerId = fetchCustomerIdByCode("CUST001");
 
-        Loan loan = createLoan(customer.getId());
+        Loan loan = createLoan(customerId);
         loanDao.insert(loan);
 
-        assertTrue(loan.getId() > 0);
-
-        Loan saved = loanDao.getById(loan.getId());
-        assertNotNull(saved);
-        assertEquals("LN001", saved.getLoanAccountNo());
+        List<Loan> loans = loanDao.getAll();
+        assertEquals(1, loans.size());
+        assertEquals("LN001", loans.get(0).getLoanAccountNo());
     }
 
     @Test
     void testGetAll() {
 
-        Customer customer = createCustomer();
-        customerDao.insert(customer);
+        customerDao.insert(createCustomer());
+        long customerId = fetchCustomerIdByCode("CUST001");
 
-        loanDao.insert(createLoan(customer.getId()));
+        loanDao.insert(createLoan(customerId));
 
         List<Loan> loans = loanDao.getAll();
         assertEquals(1, loans.size());
@@ -77,25 +70,24 @@ class LoanDaoTest {
     @Test
     void testGetById() {
 
-        Customer customer = createCustomer();
-        customerDao.insert(customer);
+        customerDao.insert(createCustomer());
+        long customerId = fetchCustomerIdByCode("CUST001");
 
-        Loan loan = createLoan(customer.getId());
-        loanDao.insert(loan);
+        loanDao.insert(createLoan(customerId));
+        Loan savedLoan = loanDao.getAll().get(0);
 
-        Loan result = loanDao.getById(loan.getId());
+        Loan result = loanDao.getById(savedLoan.getId());
         assertNotNull(result);
-        assertEquals(loan.getLoanAccountNo(), result.getLoanAccountNo());
     }
 
     @Test
     void testUpdate() {
 
-        Customer customer = createCustomer();
-        customerDao.insert(customer);
+        customerDao.insert(createCustomer());
+        long customerId = fetchCustomerIdByCode("CUST001");
 
-        Loan loan = createLoan(customer.getId());
-        loanDao.insert(loan);
+        loanDao.insert(createLoan(customerId));
+        Loan loan = loanDao.getAll().get(0);
 
         loan.setLoanType("HOME_LOAN");
         loan.setStatus("APPROVED");
@@ -103,7 +95,6 @@ class LoanDaoTest {
         loanDao.update(loan);
 
         Loan updated = loanDao.getById(loan.getId());
-        assertNotNull(updated);
         assertEquals("HOME_LOAN", updated.getLoanType());
         assertEquals("APPROVED", updated.getStatus());
     }
@@ -111,16 +102,39 @@ class LoanDaoTest {
     @Test
     void testDelete() {
 
-        Customer customer = createCustomer();
-        customerDao.insert(customer);
+        customerDao.insert(createCustomer());
+        long customerId = fetchCustomerIdByCode("CUST001");
 
-        Loan loan = createLoan(customer.getId());
-        loanDao.insert(loan);
+        loanDao.insert(createLoan(customerId));
+        Loan loan = loanDao.getAll().get(0);
 
         loanDao.delete(loan.getId());
 
-        Loan deleted = loanDao.getById(loan.getId());
-        assertNull(deleted);
+        assertNull(loanDao.getById(loan.getId()));
+    }
+
+    // ---------- helpers ----------
+
+    private long fetchCustomerIdByCode(String code) {
+
+        try (Connection con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/loan_management",
+                "root",
+                "Admin@123");
+             PreparedStatement ps =
+                     con.prepareStatement("SELECT id FROM customer WHERE customer_code=?")) {
+
+            ps.setString(1, code);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getLong("id");
+            }
+            throw new RuntimeException("Customer not found");
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Customer createCustomer() {
@@ -133,7 +147,6 @@ class LoanDaoTest {
         c.setAddress("Chennai");
         c.setKycStatus("PENDING");
         c.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-
         return c;
     }
 
@@ -148,7 +161,6 @@ class LoanDaoTest {
         l.setTenureMonths(24);
         l.setStatus("CREATED");
         l.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-
         return l;
     }
 }

@@ -1,4 +1,6 @@
-package com.loanmanagement.servelet;
+package com.loanmanagement.ServiceTest;
+
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,15 +24,19 @@ class CustomerServiceTest {
     private Customer customer;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
 
         customerService = new CustomerService();
         customerDao = mock(CustomerDao.class);
 
-  
-        Field field = CustomerService.class.getDeclaredField("customerDao");
-        field.setAccessible(true);
-        field.set(customerService, customerDao);
+        try {
+            Field field =
+                    CustomerService.class.getDeclaredField("customerDao");
+            field.setAccessible(true);
+            field.set(customerService, customerDao);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         customer = new Customer();
         customer.setCustomerCode("CUST001");

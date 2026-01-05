@@ -12,11 +12,16 @@ import com.loanmanagement.model.Customer;
 
 public class CustomerService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(CustomerService.class);
 
     private final CustomerDao customerDao = new CustomerDao();
 
     public void createCustomer(Customer customer) {
+
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer is required");
+        }
 
         if (customer.getCustomerCode() == null || customer.getCustomerCode().isEmpty()) {
             throw new IllegalArgumentException("Customer code is required");
@@ -26,11 +31,11 @@ public class CustomerService {
             throw new IllegalArgumentException("Customer name is required");
         }
 
-        customer.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-
         if (customer.getKycStatus() == null) {
             customer.setKycStatus("PENDING");
         }
+
+        customer.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 
         try {
             customerDao.insert(customer);
@@ -40,7 +45,7 @@ public class CustomerService {
             throw e;
         }
     }
-    
+
     public List<Customer> getAllCustomers() {
         return customerDao.getAll();
     }
@@ -48,7 +53,7 @@ public class CustomerService {
     public Customer getCustomerById(long id) {
         return customerDao.getById(id);
     }
-    
+
     public void updateCustomer(Customer customer) {
         customerDao.update(customer);
     }
@@ -56,6 +61,4 @@ public class CustomerService {
     public void deleteCustomer(long id) {
         customerDao.delete(id);
     }
-
-
 }

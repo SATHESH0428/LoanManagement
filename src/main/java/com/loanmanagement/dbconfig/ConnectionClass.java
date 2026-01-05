@@ -3,13 +3,15 @@ package com.loanmanagement.dbconfig;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import com.loanmanagement.exception.DataException;
 
 public class ConnectionClass {
 
-    private ConnectionClass() {}
+    private ConnectionClass() {
+    }
 
     static {
         try {
@@ -20,16 +22,15 @@ public class ConnectionClass {
     }
 
     public static Connection getConnection() {
-        try {
-            Properties prop = new Properties();
 
-            InputStream inputStream = Thread.currentThread()
-                    .getContextClassLoader()
-                    .getResourceAsStream("db.properties");
+        Properties prop = new Properties();
 
-            
+        try (InputStream inputStream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("db.properties")) {
+
             if (inputStream == null) {
-                throw new RuntimeException("db.properties file NOT FOUND in classpath");
+                throw new DataException("db.properties file NOT FOUND in classpath");
             }
 
             prop.load(inputStream);
@@ -38,15 +39,12 @@ public class ConnectionClass {
             String user = prop.getProperty("db.USER");
             String password = prop.getProperty("db.PASSWORD");
 
-           
-            System.out.println("DB URL: " + url);
-            System.out.println("DB USER: " + user);
-
             return DriverManager.getConnection(url, user, password);
 
+        } catch (SQLException e) {
+            throw new DataException("DB connection failed", e);
         } catch (Exception e) {
-            e.printStackTrace(); 
-            throw new DataException("DB not connected", e);
+            throw new DataException("Error loading database configuration", e);
         }
     }
 }

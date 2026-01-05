@@ -1,9 +1,10 @@
-package com.loanmanagement.servelet;
+package com.loanmanagement.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loanmanagement.model.Loan;
-import com.loanmanagement.servelet.LoanServelet;
 import com.loanmanagement.service.LoanService;
+import com.loanmanagement.servlet.LoanServelet;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

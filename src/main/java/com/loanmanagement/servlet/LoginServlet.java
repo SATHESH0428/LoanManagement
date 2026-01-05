@@ -1,4 +1,4 @@
-package com.loanmanagement.servelet;
+package com.loanmanagement.servlet;
 
 import java.io.IOException;
 
