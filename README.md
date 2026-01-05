@@ -37,6 +37,8 @@ Service Layer
 |
 DAO Layer
 |
+Models
+|
 MySQL Database
 
 
