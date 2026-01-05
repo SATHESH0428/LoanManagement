@@ -1,88 +1,53 @@
 # Loan Management System
 
-A backend **Loan Management System** built using **Pure Java, Servlets, and JDBC**.  
-This project is developed without using **Spring Boot or JPA** to understand core backend concepts clearly.
+This is a simple backend Loan Management System developed using Java Servlets and JDBC.  
+The purpose of this project is to understand how backend applications work without using frameworks like Spring Boot or JPA.
 
----
+In this project, I have implemented customer management, loan management, and a basic login functionality.
 
-## Project Description
+Customer details such as name, email, mobile number, address, and KYC status are stored in the customer table.  
+Loan details such as loan type, amount, interest rate, tenure, and status are stored in the loan table.  
+Each loan is linked to a customer using customer_id.
 
-This project focuses on building a simple loan management backend application using low-level Java technologies.  
-It helps in understanding how REST APIs, database access, and business logic work internally.
+Login details are stored in a separate table called user_credential.  
+This table contains username, password, and customer_id.  
+Authentication data is kept separate from business data for better clarity.
 
-The system allows managing **customers** and their **loans** with basic CRUD operations.
+When a user logs in using username and password, the details are validated from the user_credential table.  
+If the login is successful, a token is generated and stored in the auth_token table.  
+This token can be used later to secure APIs.
 
----
+The project follows a simple layered structure:
+Servlets handle HTTP requests,
+Service classes contain business logic,
+DAO classes handle database operations using JDBC,
+Data is stored in a MySQL database.
 
-## Technologies Used
+The application supports basic CRUD operations.
 
-- Java 17
-- Java Servlets
-- JDBC
-- MySQL
-- Maven
-- Liquibase
-- Jackson
-- JUnit 5
-- Mockito
-- SLF4J & Logback
-- Apache Tomcat 9
+Customer operations include:
+Create customer, fetch all customers, fetch customer by ID, update customer, and delete customer.
 
----
+Loan operations include:
+Create loan, fetch all loans, fetch loan by ID, update loan, and delete loan.
 
-## Project Structure
-Controller (Servlet)
-|
-Service Layer
-|
-DAO Layer
-|
-Models
-|
-MySQL Database
+The APIs exposed in this project are:
 
+Customer APIs:
+POST /customer  
+GET /customer  
+GET /customer?id=1  
+PUT /customer  
+DELETE /customer?id=1  
 
----
+Loan APIs:
+POST /loan  
+GET /loan  
+GET /loan?id=1  
+PUT /loan  
+DELETE /loan?id=1  
 
-## Features
-
-### Customer Management
-- Create customer
-- Fetch all customers
-- Fetch customer by ID
-- Update customer details
-- Delete customer
-
-### Loan Management
-- Create loan
-- Fetch all loans
-- Fetch loan by ID
-- Update loan details
-- Delete loan
-
----
-
-## API Endpoints
-
-### Customer APIs
-POST /customer
-GET /customer
-GET /customer?id=1
-PUT /customer
-DELETE /customer?id=1
-
-### Loan APIs
-POST /loan
-GET /loan
-GET /loan?id=1
-PUT /loan
-DELETE /loan?id=1
-
----
-
-## Sample Request JSON
-
-### Customer
+Sample customer request JSON:
 ```json
 {
   "customerCode": "CUST001",
@@ -92,40 +57,27 @@ DELETE /loan?id=1
   "address": "Chennai",
   "kycStatus": "VERIFIED"
 }
-| Column        | Type      |
-| ------------- | --------- |
-| id            | BIGINT    |
-| customer_code | VARCHAR   |
-| name          | VARCHAR   |
-| email         | VARCHAR   |
-| mobile        | VARCHAR   |
-| address       | VARCHAR   |
-| kyc_status    | VARCHAR   |
-| created_date  | TIMESTAMP |
-### Loan
-```json
 
+Sample loan request JSON:
+```json
 {
   "customerId": 1,
-  "loanType": "PERSONAL",
+  "loanType": "PERSONAL_LOAN",
   "principalAmount": 500000,
-  "interestRate": 12.5,
-  "tenureMonths": 36
+  "interestRate": 10.5,
+  "tenureMonths": 24
 }
-| Column        | Type      |
-| ------------- | --------- |
-| id            | BIGINT    |
-| customer_code | VARCHAR   |
-| name          | VARCHAR   |
-| email         | VARCHAR   |
-| mobile        | VARCHAR   |
-| address       | VARCHAR   |
-| kyc_status    | VARCHAR   |
-| created_date  | TIMESTAMP |
+Sample login request JSON:
+```json
+{
+  "username": "sathesh",
+  "password": "Admin@123"
+}
+Sample login response JSON
 
-Database Migration
+{
+  "token": "generated-auth-token"
+}
 
-Liquibase is used for database schema management.
 
-src/main/resources/db/changelog/db.changelog-master.xml
 
