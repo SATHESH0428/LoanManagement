@@ -9,9 +9,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.loanmanagement.dbconfig.ConnectionClass;
 import com.loanmanagement.exception.DataException;
 import com.loanmanagement.model.Customer;
+;
 
 public class CustomerDao {
 

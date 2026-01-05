@@ -6,7 +6,7 @@ import com.loanmanagement.util.TokenUtil;
 
 public class AuthService {
 
-    private AuthDao authDao = new AuthDao();
+    private final AuthDao authDao = new AuthDao();
 
     public String login(String username, String password) {
 
@@ -26,5 +26,14 @@ public class AuthService {
         authDao.saveToken(customerId, token);
 
         return token;
+    }
+
+    public boolean validateToken(String token) {
+
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+
+        return authDao.isTokenValid(token);
     }
 }

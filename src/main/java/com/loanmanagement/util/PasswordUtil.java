@@ -1,16 +1,20 @@
 package com.loanmanagement.util;
 
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class PasswordUtil {
-	public static String hash(String password) {
+
+    private PasswordUtil() {
+       
+    }
+
+    public static String hash(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            byte[] hashedBytes = md.digest(password.getBytes());
 
             StringBuilder sb = new StringBuilder();
-            for (byte b : bytes) {
+            for (byte b : hashedBytes) {
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();
@@ -19,5 +23,4 @@ public class PasswordUtil {
             throw new RuntimeException("Password hashing failed", e);
         }
     }
-
 }

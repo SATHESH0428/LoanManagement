@@ -3,14 +3,14 @@ package com.loanmanagement.util;
 import java.util.UUID;
 
 public class TokenUtil {
-	 public static String generateToken(String username) {
 
-	        String raw =
-	                username + ":" +
-	                UUID.randomUUID() + ":" +
-	                System.currentTimeMillis();
+    private TokenUtil() {
+        
+    }
 
-	        return CryptoUtil.encrypt(raw);
-	    }
+    public static String generateToken(String username) {
 
+       
+        return username + "-" + UUID.randomUUID().toString();
+    }
 }
