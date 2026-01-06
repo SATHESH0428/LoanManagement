@@ -2,49 +2,72 @@ package com.loanmanagement.dbconfig;
 
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.loanmanagement.exception.DataException;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 public class ConnectionClass {
 
-    private ConnectionClass() {
-    }
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ConnectionClass.class);
+
+    private static final HikariDataSource dataSource;
 
     static {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new DataException("MySQL Driver not found", e);
+            LOG.info("Initializing HikariCP DataSource");
+
+            Properties prop = new Properties();
+
+            try (InputStream inputStream = Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResourceAsStream("db.properties")) {
+
+                if (inputStream == null) {
+                    throw new DataException("db.properties file NOT FOUND in classpath");
+                }
+
+                prop.load(inputStream);
+            }
+
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(prop.getProperty("db.URL"));
+            config.setUsername(prop.getProperty("db.USER"));
+            config.setPassword(prop.getProperty("db.PASSWORD"));
+            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
+          
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(2);
+            config.setIdleTimeout(30000);
+            config.setConnectionTimeout(30000);
+            config.setPoolName("LoanManagementHikariCP");
+
+            dataSource = new HikariDataSource(config);
+
+            LOG.info("HikariCP initialized successfully");
+
+        } catch (Exception e) {
+            LOG.error("Failed to initialize HikariCP", e);
+            throw new ExceptionInInitializerError(e);
         }
     }
 
+    private ConnectionClass() {
+       
+    }
+
     public static Connection getConnection() {
-
-        Properties prop = new Properties();
-
-        try (InputStream inputStream = Thread.currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("db.properties")) {
-
-            if (inputStream == null) {
-                throw new DataException("db.properties file NOT FOUND in classpath");
-            }
-
-            prop.load(inputStream);
-
-            String url = prop.getProperty("db.URL");
-            String user = prop.getProperty("db.USER");
-            String password = prop.getProperty("db.PASSWORD");
-
-            return DriverManager.getConnection(url, user, password);
-
+        try {
+            return dataSource.getConnection();
         } catch (SQLException e) {
             throw new DataException("DB connection failed", e);
-        } catch (Exception e) {
-            throw new DataException("Error loading database configuration", e);
         }
     }
 }

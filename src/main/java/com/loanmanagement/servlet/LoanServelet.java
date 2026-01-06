@@ -1,7 +1,6 @@
 package com.loanmanagement.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serial;
 import java.sql.Timestamp;
 import java.util.List;
@@ -28,15 +27,21 @@ public class LoanServelet extends HttpServlet {
     private static final Logger LOG =
             LoggerFactory.getLogger(LoanServelet.class);
 
-    private final LoanService loanService = new LoanService();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private static final String JSON_TYPE = "application/json";
+    private static final String INVALID_LOAN_ID = "Invalid loan id";
+    private static final String LOAN_CREATED = "Loan created successfully";
+    private static final String LOAN_UPDATED = "Loan updated successfully";
+    private static final String LOAN_DELETED = "Loan deleted successfully";
+    private static final String LOAN_ID_REQUIRED = "Loan id is required";
+
+    private static  LoanService loanService = new LoanService();
+    private static  ObjectMapper mapper = new ObjectMapper();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+        resp.setContentType(JSON_TYPE);
 
         try {
             Loan loan = mapper.readValue(req.getInputStream(), Loan.class);
@@ -48,7 +53,7 @@ public class LoanServelet extends HttpServlet {
             loanService.createLoan(loan);
 
             resp.setStatus(HttpServletResponse.SC_CREATED);
-            out.write("Loan created successfully");
+            resp.getWriter().write(LOAN_CREATED);
 
         } catch (IOException e) {
             LOG.error("Invalid loan request payload", e);
@@ -63,8 +68,7 @@ public class LoanServelet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+        resp.setContentType(JSON_TYPE);
 
         try {
             String idParam = req.getParameter("id");
@@ -72,16 +76,16 @@ public class LoanServelet extends HttpServlet {
             if (idParam != null && !idParam.isBlank()) {
                 long id = Long.parseLong(idParam);
                 Loan loan = loanService.getLoanById(id);
-                out.write(mapper.writeValueAsString(loan));
+                resp.getWriter().write(mapper.writeValueAsString(loan));
             } else {
                 List<Loan> loans = loanService.getAllLoans();
-                out.write(mapper.writeValueAsString(loans));
+                resp.getWriter().write(mapper.writeValueAsString(loans));
             }
 
         } catch (NumberFormatException e) {
-            LOG.error("Invalid loan id", e);
+            LOG.error(INVALID_LOAN_ID, e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            out.write("Invalid loan id");
+            resp.getWriter().write(INVALID_LOAN_ID);
         } catch (Exception e) {
             LOG.error("Loan fetch failed", e);
             throw new DataException("Loan fetch failed", e);
@@ -92,22 +96,21 @@ public class LoanServelet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+        resp.setContentType(JSON_TYPE);
 
         try {
             Loan loan = mapper.readValue(req.getInputStream(), Loan.class);
 
             if (loan.getId() <= 0) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.write("Loan id is required");
+                resp.getWriter().write(LOAN_ID_REQUIRED);
                 return;
             }
 
             loanService.updateLoan(loan);
 
             resp.setStatus(HttpServletResponse.SC_OK);
-            out.write("Loan updated successfully");
+            resp.getWriter().write(LOAN_UPDATED);
 
         } catch (IOException e) {
             LOG.error("Invalid loan update payload", e);
@@ -122,20 +125,17 @@ public class LoanServelet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+        resp.setContentType(JSON_TYPE);
 
         try {
-            String idParam = req.getParameter("id");
-            long id = Long.parseLong(idParam);
-
+            long id = Long.parseLong(req.getParameter("id"));
             loanService.deleteLoan(id);
-            out.write("Loan deleted successfully");
+            resp.getWriter().write(LOAN_DELETED);
 
         } catch (NumberFormatException e) {
-            LOG.error("Invalid loan id", e);
+            LOG.error(INVALID_LOAN_ID, e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            out.write("Invalid loan id");
+            resp.getWriter().write(INVALID_LOAN_ID);
         } catch (Exception e) {
             LOG.error("Loan delete failed", e);
             throw new DataException("Loan delete failed", e);

@@ -113,7 +113,7 @@ class LoanDaoTest {
         assertNull(loanDao.getById(loan.getId()));
     }
 
-    // ---------- helpers ----------
+
 
     private long fetchCustomerIdByCode(String code) {
 
