@@ -1,51 +1,72 @@
 # Loan Management System
 
-This is a simple backend Loan Management System developed using Java Servlets and JDBC.  
-The purpose of this project is to understand how backend applications work without using frameworks like Spring Boot or JPA.
+A simple backend **Loan Management System** built using **Java Servlets and JDBC**.  
+In this project, I have implemented customer management, loan management, and a basic login functionality
 
-In this project, I have implemented customer management, loan management, and a basic login functionality.
+---
 
-Customer details such as name, email, mobile number, address, and KYC status are stored in the customer table.  
-Loan details such as loan type, amount, interest rate, tenure, and status are stored in the loan table.  
-Each loan is linked to a customer using customer_id.
+## Tech Stack
+- Java (Servlets)
+- JDBC
+- MySQL
+- Maven
+- Apache Tomcat
 
-Login details are stored in a separate table called user_credential.  
-This table contains username, password, and customer_id.  
-Authentication data is kept separate from business data for better clarity.
+---
 
-When a user logs in using username and password, the details are validated from the user_credential table.  
-If the login is successful, a token is generated and stored in the auth_token table.  
-This token can be used later to secure APIs.
+## Project Structure
+- **Servlets** – Handle HTTP requests
+- **Services** – Business logic
+- **DAOs** – Database operations using JDBC
+- **MySQL** – Data storage
 
-The project follows a simple layered structure:
-Servlets handle HTTP requests,
-Service classes contain business logic,
-DAO classes handle database operations using JDBC,
-Data is stored in a MySQL database.
+---
 
-The application supports basic CRUD operations.
+## Features
 
-Customer operations include:
-Create customer, fetch all customers, fetch customer by ID, update customer, and delete customer.
+### Customer
+- Create customer
+- Get all customers
+- Get customer by ID
+- Update customer
+- Delete customer
 
-Loan operations include:
-Create loan, fetch all loans, fetch loan by ID, update loan, and delete loan.
+### Loan
+- Create loan
+- Get all loans
+- Get loan by ID
+- Update loan
+- Delete loan
 
-The APIs exposed in this project are:
+### Authentication
+- Login using username and password
+- Token generation after successful login
 
-Customer APIs:
-POST /customer  
-GET /customer  
-GET /customer?id=1  
-PUT /customer  
-DELETE /customer?id=1  
+---
 
-Loan APIs:
-POST /loan  
-GET /loan  
-GET /loan?id=1  
-PUT /loan  
-DELETE /loan?id=1  
+## API Endpoints
+
+### Customer APIs
+- POST `/customer`
+- GET `/customer`
+- GET `/customer?id=1`
+- PUT `/customer`
+- DELETE `/customer?id=1`
+
+### Loan APIs
+- POST `/loan`
+- GET `/loan`
+- GET `/loan?id=1`
+- PUT `/loan`
+- DELETE `/loan?id=1`
+
+### Login API
+- POST `/api/login`
+- During login,a token is generated and stored in the database with the coressponding customer_id.for every request,the system fetch the customer_id by querying the auth_token table using the token
+
+---
+
+## Sample Requests
 
 Sample customer request JSON:
 ```json
@@ -78,6 +99,7 @@ Sample login response JSON
 {
   "token": "generated-auth-token"
 }
+
 
 
 
