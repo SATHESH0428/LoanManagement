@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public class Customer {
+
 	private long id;
 	private String customerCode;
 	private String name;
@@ -12,8 +13,10 @@ public class Customer {
 	private String address;
 	private String kycStatus;
 	private Timestamp createdDate;
-	
-	private List<Loan>loans;
+	private List<Loan> loans;
+
+	public Customer() {
+	}
 
 	public long getId() {
 		return id;
@@ -86,6 +89,5 @@ public class Customer {
 	public void setLoans(List<Loan> loans) {
 		this.loans = loans;
 	}
-	
 
 }

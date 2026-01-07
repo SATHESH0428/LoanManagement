@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import com.loanmanagement.service.AuthService;
 
-@WebFilter("/api/*")
+
 public class AuthFilter implements Filter {
 
-    private static final Logger LOG =
+    static final Logger LOG =
             LoggerFactory.getLogger(AuthFilter.class);
 
 

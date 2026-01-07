@@ -1,9 +1,12 @@
 package com.loanmanagement.model;
 
 public class LoginRequest {
-	
+
 	private String username;
 	private String password;
+
+	public LoginRequest() {
+	}
 
 	public String getUsername() {
 		return username;

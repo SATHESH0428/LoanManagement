@@ -35,17 +35,9 @@ public class CustomerServlet extends HttpServlet {
     private static final CustomerService customerService = new CustomerService();
     private static final ObjectMapper mapper = new ObjectMapper();
 
-
-    private void writeJson(HttpServletResponse resp, Object data) {
-        try {
-            resp.getWriter().write(mapper.writeValueAsString(data));
-        } catch (IOException e) {
-            LOG.error("Response write failed", e);
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            LOG.error("JSON serialization failed", e);
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
+    private void writeJson(HttpServletResponse resp, Object data)
+            throws IOException {
+        resp.getWriter().write(mapper.writeValueAsString(data));
     }
 
     @Override
@@ -53,9 +45,9 @@ public class CustomerServlet extends HttpServlet {
             throws IOException {
 
         resp.setContentType(APPLICATION_JSON);
+        PrintWriter out = resp.getWriter();
 
-        try (PrintWriter out = resp.getWriter()) {
-
+        try {
             Customer customer = new Customer();
             customer.setCustomerCode(req.getParameter("customerCode"));
             customer.setName(req.getParameter("name"));
@@ -69,9 +61,13 @@ public class CustomerServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_CREATED);
             out.write(CUSTOMER_CREATED);
 
-        } catch (Exception e) {
-            LOG.error("Customer creation failed", e);
+        } catch (IllegalArgumentException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.write(e.getMessage());
+
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.write(INTERNAL_ERROR);
         }
     }
 
@@ -80,6 +76,7 @@ public class CustomerServlet extends HttpServlet {
             throws IOException {
 
         resp.setContentType(APPLICATION_JSON);
+        PrintWriter out = resp.getWriter();
 
         String id = req.getParameter("id");
 
@@ -90,10 +87,14 @@ public class CustomerServlet extends HttpServlet {
                 long customerId = Long.parseLong(id);
                 writeJson(resp, customerService.getCustomerById(customerId));
             }
+
         } catch (NumberFormatException e) {
-            LOG.error(INVALID_CUSTOMER_ID, e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(INVALID_CUSTOMER_ID);
+            out.write(INVALID_CUSTOMER_ID);
+
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.write(INTERNAL_ERROR);
         }
     }
 
@@ -102,18 +103,18 @@ public class CustomerServlet extends HttpServlet {
             throws IOException {
 
         resp.setContentType(APPLICATION_JSON);
+        PrintWriter out = resp.getWriter();
 
         try {
             Customer customer =
                     mapper.readValue(req.getInputStream(), Customer.class);
 
             customerService.updateCustomer(customer);
-
-            resp.getWriter().write(CUSTOMER_UPDATED);
+            out.write(CUSTOMER_UPDATED);
 
         } catch (Exception e) {
-            LOG.error("Customer update failed", e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.write(INTERNAL_ERROR);
         }
     }
 
@@ -122,19 +123,20 @@ public class CustomerServlet extends HttpServlet {
             throws IOException {
 
         resp.setContentType(APPLICATION_JSON);
+        PrintWriter out = resp.getWriter();
 
         try {
             long id = Long.parseLong(req.getParameter("id"));
             customerService.deleteCustomer(id);
-            resp.getWriter().write(CUSTOMER_DELETED);
+            out.write(CUSTOMER_DELETED);
 
         } catch (NumberFormatException e) {
-            LOG.error(INVALID_CUSTOMER_ID, e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(INVALID_CUSTOMER_ID);
+            out.write(INVALID_CUSTOMER_ID);
+
         } catch (Exception e) {
-            LOG.error("Customer delete failed", e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.write(INTERNAL_ERROR);
         }
     }
 }

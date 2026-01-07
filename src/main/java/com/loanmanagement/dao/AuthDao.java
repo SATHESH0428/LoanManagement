@@ -13,7 +13,7 @@ import com.loanmanagement.exception.DataException;
 
 public class AuthDao {
 
-    private static final Logger LOG =
+     static final Logger LOG =
             LoggerFactory.getLogger(AuthDao.class);
 
     private static final String VALIDATE_LOGIN_SQL =
@@ -23,23 +23,34 @@ public class AuthDao {
             "INSERT INTO AUTH_TOKEN (CUSTOMER_ID, TOKEN, CREATED_DATE) VALUES (?, ?, CURRENT_TIMESTAMP)";
 
     private static final String VALIDATE_TOKEN_SQL =
-            "SELECT COUNT(*) FROM AUTH_TOKEN WHERE TOKEN=?";
+            "SELECT COUNT(*) AS token_count FROM AUTH_TOKEN WHERE TOKEN=?";
+
+    private static final int LOGIN_PARAM_USERNAME = 1;
+    private static final int LOGIN_PARAM_PASSWORD = 2;
+
+    private static final int INSERT_PARAM_CUSTOMER_ID = 1;
+    private static final int INSERT_PARAM_TOKEN = 2;
+
+    private static final int VALIDATE_PARAM_TOKEN = 1;
 
     public long validateLogin(String username, String hashedPassword) {
 
         try (Connection con = ConnectionClass.getConnection();
              PreparedStatement ps = con.prepareStatement(VALIDATE_LOGIN_SQL)) {
 
-            ps.setString(1, username);
-            ps.setString(2, hashedPassword);
+            ps.setString(LOGIN_PARAM_USERNAME, username);
+            ps.setString(LOGIN_PARAM_PASSWORD, hashedPassword);
 
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getLong("CUSTOMER_ID") : 0;
+                if (rs.next()) {
+                    return rs.getLong("CUSTOMER_ID");
+                }
+                return 0;
             }
 
         } catch (SQLException e) {
-            LOG.error("Login validation failed for user {}", username, e);
-            throw new DataException("Login validation failed", e);
+            
+            throw new DataException("Login validation failed for user " + username, e);
         }
     }
 
@@ -48,13 +59,13 @@ public class AuthDao {
         try (Connection con = ConnectionClass.getConnection();
              PreparedStatement ps = con.prepareStatement(INSERT_TOKEN_SQL)) {
 
-            ps.setLong(1, customerId);
-            ps.setString(2, token);
+            ps.setLong(INSERT_PARAM_CUSTOMER_ID, customerId);
+            ps.setString(INSERT_PARAM_TOKEN, token);
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            LOG.error("Token save failed for customer {}", customerId, e);
-            throw new DataException("Token save failed", e);
+           
+            throw new DataException("Token save failed for customer " + customerId, e);
         }
     }
 
@@ -63,14 +74,14 @@ public class AuthDao {
         try (Connection con = ConnectionClass.getConnection();
              PreparedStatement ps = con.prepareStatement(VALIDATE_TOKEN_SQL)) {
 
-            ps.setString(1, token);
+            ps.setString(VALIDATE_PARAM_TOKEN, token);
 
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
+                return rs.next() && rs.getInt("token_count") > 0;
             }
 
         } catch (SQLException e) {
-            LOG.error("Token validation failed", e);
+            
             throw new DataException("Token validation failed", e);
         }
     }

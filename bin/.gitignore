@@ -1,0 +1,14 @@
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Maven
+target/
+
+# Server / runtime
+LoanManagement/
+
+# OS files
+.DS_Store
+Thumbs.db

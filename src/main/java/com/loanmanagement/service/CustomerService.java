@@ -15,7 +15,7 @@ public class CustomerService {
     private static final Logger LOG =
             LoggerFactory.getLogger(CustomerService.class);
 
-    private final CustomerDao customerDao = new CustomerDao();
+    private CustomerDao customerDao = new CustomerDao();
 
     public void createCustomer(Customer customer) {
 
@@ -23,35 +23,41 @@ public class CustomerService {
             throw new IllegalArgumentException("Customer is required");
         }
 
-        if (customer.getCustomerCode() == null || customer.getCustomerCode().isEmpty()) {
+        if (customer.getCustomerCode() == null ||
+            customer.getCustomerCode().isBlank()) {
             throw new IllegalArgumentException("Customer code is required");
         }
 
-        if (customer.getName() == null || customer.getName().isEmpty()) {
+        if (customer.getName() == null ||
+            customer.getName().isBlank()) {
             throw new IllegalArgumentException("Customer name is required");
         }
 
+  
         if (customer.getKycStatus() == null) {
             customer.setKycStatus("PENDING");
         }
 
-        customer.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        if (customer.getCreatedDate() == null) {
+            customer.setCreatedDate(
+                    new Timestamp(System.currentTimeMillis()));
+        }
 
         try {
             customerDao.insert(customer);
-            LOG.info("Customer created {}", customer.getCustomerCode());
+            LOG.info("Customer created: {}", customer.getCustomerCode());
         } catch (DataException e) {
-            LOG.error("Customer creation failed", e);
+         
             throw e;
         }
     }
 
     public List<Customer> getAllCustomers() {
-        return customerDao.getAll();
+        return customerDao.findAll();
     }
 
     public Customer getCustomerById(long id) {
-        return customerDao.getById(id);
+        return customerDao.findById(id);
     }
 
     public void updateCustomer(Customer customer) {

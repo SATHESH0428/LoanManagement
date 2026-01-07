@@ -16,12 +16,33 @@ import com.loanmanagement.model.Loan;
 
 public class LoanDao {
 
-    private static final Logger LOG =
+     static final Logger LOG =
             LoggerFactory.getLogger(LoanDao.class);
 
+    
+    private static final int INSERT_LOAN_ACCOUNT_NO = 1;
+    private static final int INSERT_CUSTOMER_ID = 2;
+    private static final int INSERT_LOAN_TYPE = 3;
+    private static final int INSERT_PRINCIPAL = 4;
+    private static final int INSERT_INTEREST = 5;
+    private static final int INSERT_TENURE = 6;
+    private static final int INSERT_STATUS = 7;
+    private static final int INSERT_CREATED_DATE = 8;
+
+    private static final int SELECT_BY_ID = 1;
+    private static final int DELETE_BY_ID = 1;
+
+    private static final int UPDATE_LOAN_TYPE = 1;
+    private static final int UPDATE_PRINCIPAL = 2;
+    private static final int UPDATE_INTEREST = 3;
+    private static final int UPDATE_TENURE = 4;
+    private static final int UPDATE_STATUS = 5;
+    private static final int UPDATE_ID = 6;
+
+   
     private static final String INSERT_SQL =
-            "INSERT INTO loan (loan_account_no, customer_id, loan_type, principal_amount, interest_rate, tenure_months, status, created_date) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO loan (loan_account_no, customer_id, loan_type, principal_amount, " +
+            "interest_rate, tenure_months, status, created_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SELECT_ALL_SQL =
             "SELECT * FROM loan";
@@ -30,38 +51,41 @@ public class LoanDao {
             "SELECT * FROM loan WHERE id=?";
 
     private static final String UPDATE_SQL =
-            "UPDATE loan SET loan_type=?, principal_amount=?, interest_rate=?, tenure_months=?, status=? WHERE id=?";
+            "UPDATE loan SET loan_type=?, principal_amount=?, interest_rate=?, " +
+            "tenure_months=?, status=? WHERE id=?";
 
     private static final String DELETE_SQL =
             "DELETE FROM loan WHERE id=?";
+
+   
 
     public void insert(Loan loan) {
 
         try (Connection con = ConnectionClass.getConnection();
              PreparedStatement ps = con.prepareStatement(INSERT_SQL)) {
 
-            ps.setString(1, loan.getLoanAccountNo());
-            ps.setLong(2, loan.getCustomerId());
-            ps.setString(3, loan.getLoanType());
-            ps.setBigDecimal(4, loan.getPrincipalAmount());
-            ps.setBigDecimal(5, loan.getInterestRate());
-            ps.setInt(6, loan.getTenureMonths());
-            ps.setString(7, loan.getStatus());
-            ps.setTimestamp(8, loan.getCreatedDate());
+            ps.setString(INSERT_LOAN_ACCOUNT_NO, loan.getLoanAccountNo());
+            ps.setLong(INSERT_CUSTOMER_ID, loan.getCustomerId());
+            ps.setString(INSERT_LOAN_TYPE, loan.getLoanType());
+            ps.setBigDecimal(INSERT_PRINCIPAL, loan.getPrincipalAmount());
+            ps.setBigDecimal(INSERT_INTEREST, loan.getInterestRate());
+            ps.setInt(INSERT_TENURE, loan.getTenureMonths());
+            ps.setString(INSERT_STATUS, loan.getStatus());
+            ps.setTimestamp(INSERT_CREATED_DATE, loan.getCreatedDate());
 
             int rows = ps.executeUpdate();
             if (rows == 0) {
-                LOG.error("Insert failed for Loan {}", loan.getLoanAccountNo());
+                LOG.error("Insert failed for loan {}", loan.getLoanAccountNo());
             } else {
-                LOG.info("Loan inserted {}", loan.getLoanAccountNo());
+                LOG.info("Loan inserted successfully {}", loan.getLoanAccountNo());
             }
 
         } catch (SQLException e) {
-            throw new DataException("Failed to insert Loan", e);
+            throw new DataException("Failed to insert loan", e);
         }
     }
 
-    public List<Loan> getAll() {
+    public List<Loan> findAll() {
 
         List<Loan> loans = new ArrayList<>();
 
@@ -70,55 +94,36 @@ public class LoanDao {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Loan loan = new Loan();
-                loan.setId(rs.getLong("id"));
-                loan.setLoanAccountNo(rs.getString("loan_account_no"));
-                loan.setCustomerId(rs.getLong("customer_id"));
-                loan.setLoanType(rs.getString("loan_type"));
-                loan.setPrincipalAmount(rs.getBigDecimal("principal_amount"));
-                loan.setInterestRate(rs.getBigDecimal("interest_rate"));
-                loan.setTenureMonths(rs.getInt("tenure_months"));
-                loan.setStatus(rs.getString("status"));
-                loan.setCreatedDate(rs.getTimestamp("created_date"));
-                loans.add(loan);
+                loans.add(mapping(rs));
             }
 
-        } catch (SQLException e) {
-            throw new DataException("Fetch all loans failed", e);
-        }
+            
+            return loans;
 
-        return loans;
+        } catch (SQLException e) {
+            throw new DataException("Failed to fetch loans", e);
+        }
     }
 
-    public Loan getById(long id) {
-
-        Loan loan = null;
+    public Loan findById(long id) {
 
         try (Connection con = ConnectionClass.getConnection();
              PreparedStatement ps = con.prepareStatement(SELECT_BY_ID_SQL)) {
 
-            ps.setLong(1, id);
+            ps.setLong(SELECT_BY_ID, id);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    loan = new Loan();
-                    loan.setId(rs.getLong("id"));
-                    loan.setLoanAccountNo(rs.getString("loan_account_no"));
-                    loan.setCustomerId(rs.getLong("customer_id"));
-                    loan.setLoanType(rs.getString("loan_type"));
-                    loan.setPrincipalAmount(rs.getBigDecimal("principal_amount"));
-                    loan.setInterestRate(rs.getBigDecimal("interest_rate"));
-                    loan.setTenureMonths(rs.getInt("tenure_months"));
-                    loan.setStatus(rs.getString("status"));
-                    loan.setCreatedDate(rs.getTimestamp("created_date"));
+                    return mapping(rs);
                 }
             }
 
-        } catch (SQLException e) {
-            throw new DataException("Fetch loan failed", e);
-        }
+            
+            return null;
 
-        return loan;
+        } catch (SQLException e) {
+            throw new DataException("Failed to fetch loan by id", e);
+        }
     }
 
     public void update(Loan loan) {
@@ -126,17 +131,22 @@ public class LoanDao {
         try (Connection con = ConnectionClass.getConnection();
              PreparedStatement ps = con.prepareStatement(UPDATE_SQL)) {
 
-            ps.setString(1, loan.getLoanType());
-            ps.setBigDecimal(2, loan.getPrincipalAmount());
-            ps.setBigDecimal(3, loan.getInterestRate());
-            ps.setInt(4, loan.getTenureMonths());
-            ps.setString(5, loan.getStatus());
-            ps.setLong(6, loan.getId());
+            ps.setString(UPDATE_LOAN_TYPE, loan.getLoanType());
+            ps.setBigDecimal(UPDATE_PRINCIPAL, loan.getPrincipalAmount());
+            ps.setBigDecimal(UPDATE_INTEREST, loan.getInterestRate());
+            ps.setInt(UPDATE_TENURE, loan.getTenureMonths());
+            ps.setString(UPDATE_STATUS, loan.getStatus());
+            ps.setLong(UPDATE_ID, loan.getId());
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                LOG.error("Update failed for loan id={}", loan.getId());
+            } else {
+                LOG.info("Loan updated successfully id={}", loan.getId());
+            }
 
         } catch (SQLException e) {
-            throw new DataException("Update loan failed", e);
+            throw new DataException("Failed to update loan", e);
         }
     }
 
@@ -145,11 +155,33 @@ public class LoanDao {
         try (Connection con = ConnectionClass.getConnection();
              PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
 
-            ps.setLong(1, id);
-            ps.executeUpdate();
+            ps.setLong(DELETE_BY_ID, id);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                LOG.error("Delete failed, loan not found id={}", id);
+            } else {
+                LOG.info("Loan deleted successfully id={}", id);
+            }
 
         } catch (SQLException e) {
-            throw new DataException("Delete loan failed", e);
+            throw new DataException("Failed to delete loan", e);
         }
+    }
+
+   
+    private static Loan mapping(ResultSet rs) throws SQLException {
+
+        Loan loan = new Loan();
+        loan.setId(rs.getLong("id"));
+        loan.setLoanAccountNo(rs.getString("loan_account_no"));
+        loan.setCustomerId(rs.getLong("customer_id"));
+        loan.setLoanType(rs.getString("loan_type"));
+        loan.setPrincipalAmount(rs.getBigDecimal("principal_amount"));
+        loan.setInterestRate(rs.getBigDecimal("interest_rate"));
+        loan.setTenureMonths(rs.getInt("tenure_months"));
+        loan.setStatus(rs.getString("status"));
+        loan.setCreatedDate(rs.getTimestamp("created_date"));
+        return loan;
     }
 }

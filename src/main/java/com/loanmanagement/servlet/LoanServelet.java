@@ -18,13 +18,13 @@ import com.loanmanagement.exception.DataException;
 import com.loanmanagement.model.Loan;
 import com.loanmanagement.service.LoanService;
 
-@WebServlet("/loan")
+
 public class LoanServelet extends HttpServlet {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG =
+    static final Logger LOG =
             LoggerFactory.getLogger(LoanServelet.class);
 
     private static final String JSON_TYPE = "application/json";
@@ -56,10 +56,10 @@ public class LoanServelet extends HttpServlet {
             resp.getWriter().write(LOAN_CREATED);
 
         } catch (IOException e) {
-            LOG.error("Invalid loan request payload", e);
+            
             throw new DataException("Invalid loan request payload", e);
         } catch (Exception e) {
-            LOG.error("Loan creation failed", e);
+            
             throw new DataException("Loan creation failed", e);
         }
     }
@@ -83,11 +83,11 @@ public class LoanServelet extends HttpServlet {
             }
 
         } catch (NumberFormatException e) {
-            LOG.error(INVALID_LOAN_ID, e);
+           
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write(INVALID_LOAN_ID);
         } catch (Exception e) {
-            LOG.error("Loan fetch failed", e);
+          
             throw new DataException("Loan fetch failed", e);
         }
     }
@@ -113,10 +113,10 @@ public class LoanServelet extends HttpServlet {
             resp.getWriter().write(LOAN_UPDATED);
 
         } catch (IOException e) {
-            LOG.error("Invalid loan update payload", e);
+            
             throw new DataException("Invalid loan update payload", e);
         } catch (Exception e) {
-            LOG.error("Loan update failed", e);
+            
             throw new DataException("Loan update failed", e);
         }
     }
@@ -133,11 +133,11 @@ public class LoanServelet extends HttpServlet {
             resp.getWriter().write(LOAN_DELETED);
 
         } catch (NumberFormatException e) {
-            LOG.error(INVALID_LOAN_ID, e);
+            
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write(INVALID_LOAN_ID);
         } catch (Exception e) {
-            LOG.error("Loan delete failed", e);
+            
             throw new DataException("Loan delete failed", e);
         }
     }

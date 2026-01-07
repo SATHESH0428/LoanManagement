@@ -1,10 +1,15 @@
 package com.loanmanagement.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.loanmanagement.dao.AuthDao;
 import com.loanmanagement.util.PasswordUtil;
 import com.loanmanagement.util.TokenUtil;
 
 public class AuthService {
+	private static final  Logger LOG =
+            LoggerFactory.getLogger(AuthService.class);
 
     private final AuthDao authDao = new AuthDao();
 
