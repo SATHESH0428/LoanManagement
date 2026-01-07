@@ -50,7 +50,7 @@ public class ConnectionClass {
             config.setMinimumIdle(2);            
             config.setIdleTimeout(30000);        
             config.setConnectionTimeout(30000);  
-            config.setPoolName("LoanManagementHikariCP");
+         
 
             dataSource = new HikariDataSource(config);
 

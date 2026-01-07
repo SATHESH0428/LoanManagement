@@ -16,7 +16,7 @@ import com.loanmanagement.model.Loan;
 
 public class LoanDao {
 
-     static final Logger LOG =
+    private static final Logger LOG =
             LoggerFactory.getLogger(LoanDao.class);
 
     

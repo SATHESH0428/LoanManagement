@@ -6,7 +6,8 @@
 	version="3.1">
 	<servlet>
 		<servlet-name>LoginServlet</servlet-name>
-		<servlet-class>com.example.servlet.LoginServlet</servlet-class>
+		<servlet-class>com.loanmanagement.servlet.LoginServlet</servlet-class>
+
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>LoginServlet</servlet-name>
@@ -31,18 +32,5 @@
 	</servlet-mapping>
 
 
-<<<<<<< HEAD
-  <servlet>
-    <servlet-name>LoginServlet</servlet-name>
-    <servlet-class>com.loanmanagement.servlet.LoginServlet</servlet-class>
-</servlet>
-
-<servlet-mapping>
-    <servlet-name>LoginServlet</servlet-name>
-    <url-pattern>/api/login</url-pattern>
-</servlet-mapping>
-  
-=======
->>>>>>> 5bcde24 (sonar qube checking)
 
 </web-app>
