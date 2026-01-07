@@ -95,7 +95,7 @@ Sample login request JSON:
   "password": "Admin@123"
 }
 Sample login response JSON
-
+```json
 {
   "token": "generated-auth-token"
 }
