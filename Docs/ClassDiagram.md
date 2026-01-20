@@ -1,10 +1,5 @@
 ```mermaid
-Class Diagram
-
-
-
-
-
+classDiagram
 class CustomerServlet {
     +doGet()
     +doPost()
@@ -19,7 +14,6 @@ class LoginServlet {
     +doPost()
 }
 
-
 class CustomerService {
     +registerCustomer(Customer)
     +getCustomerDetails(int)
@@ -33,7 +27,6 @@ class LoanService {
 class AuthService {
     +login(LoginRequest)
 }
-
 
 class CustomerDao {
     +saveCustomer(Customer)
@@ -50,7 +43,6 @@ class LoanDao {
 class AuthDao {
     +validateUser(String, String)
 }
-
 
 class PasswordUtil {
     +hashPassword()
@@ -73,10 +65,6 @@ class AuthFilter {
 class DataException {
     +String message
 }
-
-
-
-
 class Customer {
     +int customerId
     +String name
@@ -100,7 +88,6 @@ class LoginRequest {
     +String password
 }
 
-
 CustomerServlet --> CustomerService
 CustomerService --> CustomerDao
 CustomerDao --> Customer
@@ -118,7 +105,4 @@ AuthService --> TokenUtil
 AuthDao --> ConnectionClass
 
 AuthFilter --> TokenUtil
-
-
-"" 
 ```
