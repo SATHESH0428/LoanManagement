@@ -17,7 +17,7 @@ import com.loanmanagement.model.Customer;
 
 public class CustomerDao {
 
-	static final Logger LOG = LoggerFactory.getLogger(CustomerDao.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CustomerDao.class);
 
 	private static final int INSERT_CUSTOMER_CODE = 1;
 	private static final int INSERT_NAME = 2;

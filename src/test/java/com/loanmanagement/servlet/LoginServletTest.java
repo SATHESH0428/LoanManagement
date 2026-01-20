@@ -17,118 +17,74 @@ import org.junit.jupiter.api.Test;
 
 class LoginServletTest {
 
-    private LoginServlet loginServlet;
+    private LoginServlet servlet;
     private HttpServletRequest request;
     private HttpServletResponse response;
-    private StringWriter stringWriter;
+    private StringWriter writer;
 
     @BeforeEach
     void setup() throws Exception {
-
-        loginServlet = new LoginServlet();
+        servlet = new LoginServlet();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
 
-        stringWriter = new StringWriter();
-        when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        writer = new StringWriter();
+        when(response.getWriter()).thenReturn(new PrintWriter(writer));
     }
 
-   
+    // ❌ Invalid JSON
     @Test
-    void testInvalidJson() throws Exception {
+    void invalidJson() throws Exception {
+        when(request.getInputStream()).thenReturn(stream("invalid"));
 
-        ByteArrayInputStream bais =
-                new ByteArrayInputStream("invalid-json".getBytes());
+        servlet.doPost(request, response);
 
-        ServletInputStream inputStream = new ServletInputStream() {
-
-            @Override
-            public int read() {
-                return bais.read();
-            }
-
-            @Override
-            public boolean isFinished() {
-                return bais.available() == 0;
-            }
-
-            @Override
-            public boolean isReady() {
-                return true;
-            }
-
-            @Override
-            public void setReadListener(ReadListener readListener) {
-            }
-        };
-
-        when(request.getInputStream()).thenReturn(inputStream);
-
-        loginServlet.doPost(request, response);
-
-        assertEquals("Invalid JSON request", stringWriter.toString());
-        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        assertEquals("Invalid JSON request", writer.toString());
+        verify(response).setStatus(400);
     }
 
-  
+    // ❌ Missing username/password
     @Test
-    void testMissingFields() throws Exception {
+    void missingFields() throws Exception {
+        when(request.getInputStream())
+                .thenReturn(stream("{\"username\":null,\"password\":null}"));
 
-        String json = "{\"username\":null,\"password\":null}";
-        ByteArrayInputStream bais =
-                new ByteArrayInputStream(json.getBytes());
+        servlet.doPost(request, response);
 
-        when(request.getInputStream()).thenReturn(new ServletInputStream() {
-            @Override public int read() { return bais.read(); }
-            @Override public boolean isFinished() { return bais.available() == 0; }
-            @Override public boolean isReady() { return true; }
-            @Override public void setReadListener(ReadListener readListener) {}
-        });
-
-        loginServlet.doPost(request, response);
-
-        assertEquals("Username and password required", stringWriter.toString());
-        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        assertEquals("Username and password required", writer.toString());
+        verify(response).setStatus(400);
     }
 
-
+    // ❌ Invalid credentials
     @Test
-    void testInvalidCredentials() throws Exception {
+    void invalidCredentials() throws Exception {
+        when(request.getInputStream())
+                .thenReturn(stream("{\"username\":\"x\",\"password\":\"y\"}"));
 
-        String json = "{\"username\":\"bad\",\"password\":\"bad\"}";
-        ByteArrayInputStream bais =
-                new ByteArrayInputStream(json.getBytes());
+        servlet.doPost(request, response);
 
-        when(request.getInputStream()).thenReturn(new ServletInputStream() {
-            @Override public int read() { return bais.read(); }
-            @Override public boolean isFinished() { return bais.available() == 0; }
-            @Override public boolean isReady() { return true; }
-            @Override public void setReadListener(ReadListener readListener) {}
-        });
-
-        loginServlet.doPost(request, response);
-
-        assertEquals("Invalid credentials", stringWriter.toString());
-        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        assertEquals("Invalid credentials", writer.toString());
+        verify(response).setStatus(401);
     }
 
-  
+    // ✅ Success
     @Test
-    void testLoginSuccessResponseFormat() throws Exception {
+    void loginSuccess() throws Exception {
+        when(request.getInputStream())
+                .thenReturn(stream("{\"username\":\"user\",\"password\":\"pass\"}"));
 
-        String json = "{\"username\":\"user\",\"password\":\"pass\"}";
-        ByteArrayInputStream bais =
-                new ByteArrayInputStream(json.getBytes());
-
-        when(request.getInputStream()).thenReturn(new ServletInputStream() {
-            @Override public int read() { return bais.read(); }
-            @Override public boolean isFinished() { return bais.available() == 0; }
-            @Override public boolean isReady() { return true; }
-            @Override public void setReadListener(ReadListener readListener) {}
-        });
-
-        loginServlet.doPost(request, response);
+        servlet.doPost(request, response);
 
         verify(response).setStatus(anyInt());
+    }
+
+    private ServletInputStream stream(String json) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(json.getBytes());
+        return new ServletInputStream() {
+            @Override public int read() { return bis.read(); }
+            @Override public boolean isFinished() { return bis.available() == 0; }
+            @Override public boolean isReady() { return true; }
+            @Override public void setReadListener(ReadListener readListener) {}
+        };
     }
 }

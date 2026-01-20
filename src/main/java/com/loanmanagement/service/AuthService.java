@@ -8,37 +8,37 @@ import com.loanmanagement.util.PasswordUtil;
 import com.loanmanagement.util.TokenUtil;
 
 public class AuthService {
-	private static final  Logger LOG =
-            LoggerFactory.getLogger(AuthService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
 
-    private final AuthDao authDao = new AuthDao();
+	private final AuthDao authDao = new AuthDao();
 
-    public String login(String username, String password) {
+	public String login(String username, String password) {
 
-        if (username == null || password == null) {
-            throw new IllegalArgumentException("Username and password required");
-        }
+		if (username == null || password == null) {
+			throw new IllegalArgumentException("Username and password required");
+		}
 
-        String hashedPassword = PasswordUtil.hash(password);
+		String hashedPassword = PasswordUtil.hash(password);
 
-        long customerId = authDao.validateLogin(username, hashedPassword);
+		long customerId = authDao.validateLogin(username, hashedPassword);
 
-        if (customerId == 0) {
-            throw new IllegalArgumentException("Invalid username or password");
-        }
+		if (customerId == 0) {
 
-        String token = TokenUtil.generateToken(username);
-        authDao.saveToken(customerId, token);
+			throw new IllegalArgumentException("Invalid username or password");
+		}
 
-        return token;
-    }
+		String token = TokenUtil.generateToken(username);
+		authDao.saveToken(customerId, token);
 
-    public boolean validateToken(String token) {
+		return token;
+	}
 
-        if (token == null || token.isEmpty()) {
-            return false;
-        }
+	public boolean validateToken(String token) {
 
-        return authDao.isTokenValid(token);
-    }
+		if (token == null || token.isEmpty()) {
+			return false;
+		}
+
+		return authDao.isTokenValid(token);
+	}
 }

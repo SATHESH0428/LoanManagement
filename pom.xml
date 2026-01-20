@@ -101,8 +101,15 @@
 			<artifactId>HikariCP</artifactId>
 			<version>5.1.0</version>
 		</dependency>
+         <!--ActiveMq-->
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-all</artifactId>
+			<version>5.18.2</version>
+		</dependency>
 
 	</dependencies>
+
 
 	<!-- ================= BUILD ================= -->
 	<build>
@@ -149,7 +156,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 
 			<!-- WAR -->
 			<plugin>

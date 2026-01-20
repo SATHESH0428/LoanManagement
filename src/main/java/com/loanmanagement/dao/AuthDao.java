@@ -13,7 +13,7 @@ import com.loanmanagement.exception.DataException;
 
 public class AuthDao {
 
-     static final Logger LOG =
+     private static final Logger LOG =
             LoggerFactory.getLogger(AuthDao.class);
 
     private static final String VALIDATE_LOGIN_SQL =
