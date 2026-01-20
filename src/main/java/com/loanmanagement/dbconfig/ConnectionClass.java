@@ -40,16 +40,16 @@ public class ConnectionClass {
 
             
             HikariConfig config = new HikariConfig();
-            config.setJdbcUrl(prop.getProperty("db.URL"));
-            config.setUsername(prop.getProperty("db.USER"));
-            config.setPassword(prop.getProperty("db.PASSWORD"));
+            config.setJdbcUrl(prop.getProperty("db.url"));
+            config.setUsername(prop.getProperty("db.username"));
+            config.setPassword(prop.getProperty("db.password"));
             config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
-          
-            config.setMaximumPoolSize(10);        
-            config.setMinimumIdle(2);            
-            config.setIdleTimeout(30000);        
-            config.setConnectionTimeout(30000);  
+         
+            config.setMaximumPoolSize(Integer.parseInt(prop.getProperty("db.pool.max-size")));        
+            config.setMinimumIdle(Integer.parseInt(prop.getProperty("db.pool.min-size")));            
+            config.setIdleTimeout(Integer.parseInt(prop.getProperty("db.pool.idle-timeout")));        
+            config.setConnectionTimeout(Integer.parseInt(prop.getProperty("db.pool.connection-timee")));  
          
 
             dataSource = new HikariDataSource(config);
